@@ -4,8 +4,8 @@ Shader "Custom/GradientSkybox" {
     {
         _Color1 ("Color Bottom", Color) = (1, 1, 1, 0)
         _Color2 ("Color Top", Color) = (1, 1, 1, 0)
-        _Intensity ("Intensity", Float) = 1.0
-        _Exponent ("Exponent", Float) = 1.0
+        _Intensity ("Intensity", Range(0, 1)) = 1.0
+        _Exponent ("Exponent", Range(0, 1)) = 1.0
 
         _Horizon ("Horizon Line", Range(0, 1)) = 1.0
         _HorizonSize ("Horizon Edge", Range (0, 1)) = 0
