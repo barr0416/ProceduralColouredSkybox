@@ -384,6 +384,7 @@ MonoBehaviour:
   randomColorsSwitchTimer: 2
   changeLightColor: 1
   globalLight: {fileID: 170076734}
+  lerpSkyboxColors: 1
 --- !u!4 &1135015114
 Transform:
   m_ObjectHideFlags: 0
