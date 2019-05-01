@@ -1,97 +1,186 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Skybox control for the GradientSkybox shader. Allows for control of two colors on the shader.
+/// </summary>
 public class SkyboxControl : MonoBehaviour 
 {
+    //Reference for the skybox and material found on the main camera
     private Material skyboxMaterial;
     public Skybox skybox;
 
+    //Controls that are found in the script
+    [Range(0.0f, 1.0f)]
+    public float skyboxIntensity = 1.0f;
+    [Range(0.0f, 1.0f)]
+    public float skyboxExponent = 1.0f;
+    [Range(0.0f, 1.0f)]
+    public float skyboxHorizonLine = 1.0f;
+    [Range(0.0f, 1.0f)]
+    public float skyboxHorizonEdge = 0.1f;
+
+    //Skybox color references for the top and bottom
     public Color skyboxColorTop;
     public Color skyboxColorBottom;
-
     public Color skyboxColorTop2;
     public Color skyboxColorBottom2;
 
+    //If random colors is selected, will snap to a random color after set time
     public bool randomColors = false;
+    //The time between switching the colors, used for all calls
     public float colorsSwitchTimer = 5.0f;
+    //Tracking the switch timers and lerp progress (keep private)
     private float lastSwitch = 0.0f;
     private float lerpStep = 0.0f;
 
+    /// <summary>
+    /// Toggle to change the given light color when the skybox color changes
+    /// </summary>
     public bool changeLightColor = true;
+    /// <summary>
+    /// The main or global light being used
+    /// </summary>
     public Light globalLight;
 
+    /// <summary>
+    /// Toggle to lerp random light colors
+    /// </summary>
     public bool lerpRandomColors = false;
+    /// <summary>
+    /// Toggle to lerp between the two given colors (ping-pong)
+    /// </summary>
     public bool lerpBetweenGivenColors = false;
-    
-    private enum CurrentColor
-    {
-        Original,
-        Given
-    }
-    private CurrentColor currentColor;
 
+    //State tracking for the style of color change that will happen
+    private enum ColorChangeStyle
+    {
+        SnapToRandom,
+        TransitionToRandom,
+        TransitionToGiven,
+        None
+    }
+    private ColorChangeStyle colorChangeStyle;
+
+    //State tracking for the current color transition
+    private enum CurrentColorState
+    {
+        Idle,
+        Changing,
+        Done
+    }
+    private CurrentColorState currentColorState;
+
+    /// <summary>
+    /// Start this instance.
+    /// </summary>
     private void Start()
     {
-        skyboxMaterial = skybox.material;
+        //Set the skybox material from reference
+        if (skybox)
+        {
+            skyboxMaterial = skybox.material;
+        }
 
+        //Set the skybox settings as given
+        this.SetSkyboxSettings();
+
+        //Set the skybox colors to the given top and bottom as the starting colors
         this.SetSkyboxColors(skyboxColorBottom, skyboxColorTop);
 
-        if(lerpBetweenGivenColors)
+        //Set the color change style state depending on what the parameter selected has been
+        if(randomColors)
         {
-            currentColor = CurrentColor.Original;
+            colorChangeStyle = ColorChangeStyle.SnapToRandom;
+        }
+        else if(lerpBetweenGivenColors)
+        {
+            colorChangeStyle = ColorChangeStyle.TransitionToGiven;
+        }
+        else if(lerpRandomColors)
+        {
+            colorChangeStyle = ColorChangeStyle.TransitionToRandom;
+        }
+        else
+        {
+            colorChangeStyle = ColorChangeStyle.None;
+        }
+
+        //The current color state change is idle
+        currentColorState = CurrentColorState.Idle;
+
+        //Check to see if the change light option has been selected but no light was given,
+        //Then turn off the global light color change to prevent error
+        if(changeLightColor && globalLight == null)
+        {
+            changeLightColor = false;
         }
     }
 
+    /// <summary>
+    /// Update this instance.
+    /// </summary>
     private void Update()
     {
+        //Count towards the time to switch (in seconds)
         lastSwitch += Time.deltaTime;
 
-        if(randomColors && lastSwitch >= colorsSwitchTimer && lerpRandomColors)
+        //Check to see what color change style has been selected and see if the switch timer is filled to start the color switch
+        if(colorChangeStyle == ColorChangeStyle.TransitionToRandom && lastSwitch >= colorsSwitchTimer)
         {
-            StartCoroutine("TransitionColors");
+            StartCoroutine("TransitionRandomColors");
             lastSwitch = 0.0f;
         }
-        else if (lastSwitch >= colorsSwitchTimer && lerpBetweenGivenColors)
+        else if (colorChangeStyle == ColorChangeStyle.TransitionToGiven && lastSwitch >= colorsSwitchTimer)
         {
             StartCoroutine("TransitionGivenColors");
             lastSwitch = 0.0f;
         }
-        else if (randomColors && lastSwitch >= colorsSwitchTimer)
+        else if (colorChangeStyle == ColorChangeStyle.SnapToRandom && lastSwitch >= colorsSwitchTimer)
         {
-            this.SetSkyboxColors(Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f));
+            this.SetSkyboxColors(UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f));
             lastSwitch = 0.0f;
         }
         else
         {
-            //Do nothing
+            //Do nothing or something
         }
+
+        this.SetSkyboxSettings();
     }
 
-    private void LerpSkyColors()
-    {
-
-    }
-
+    /// <summary>
+    /// Sets the skybox colors with given bottom and top colors.
+    /// </summary>
+    /// <param name="bottomColor">Bottom color.</param>
+    /// <param name="topColor">Top color.</param>
     private void SetSkyboxColors(Color bottomColor, Color topColor)
     {
         skyboxMaterial.SetColor("_Color1", bottomColor);
         skyboxMaterial.SetColor("_Color2", topColor);
 
+        //Check for change light color selected and perform it
         if(changeLightColor)
         {
             globalLight.color = topColor;
         }
     }
 
-    private IEnumerator TransitionColors()
+    /// <summary>
+    /// Transitions to random colors generated in the coroutine from the old, current colors.
+    /// </summary>
+    /// <returns>The random colors.</returns>
+    private IEnumerator TransitionRandomColors()
     {
+        //The new and old top and bottom colors for reference inside the coroutine
         Color oldTopColor = skyboxMaterial.GetColor("_Color2");
         Color oldBottomColor = skyboxMaterial.GetColor("_Color1");
 
-        Color newTopColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-        Color newBottomColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        Color newTopColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        Color newBottomColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 
+        //Continually change the colors toward the new colors given until the given time is reached
         while(lerpStep < 1.0f)
         {
             skyboxMaterial.SetColor("_Color1", Color.Lerp(oldBottomColor, newBottomColor, lerpStep));
@@ -107,10 +196,18 @@ public class SkyboxControl : MonoBehaviour
         lerpStep = 0;
     }
 
+    /// <summary>
+    /// Transitions to the given colors from the inspector. 
+    /// Performs in a ping-pong fashion.
+    /// </summary>
+    /// <returns>The given colors.</returns>
     private IEnumerator TransitionGivenColors()
     {
-        if (currentColor == CurrentColor.Original)
+        //Check the current color change state and perform the color changing as needed
+        if (currentColorState == CurrentColorState.Idle)
         {
+            currentColorState = CurrentColorState.Changing;
+
             while (lerpStep < 1.0f)
             {
                 skyboxMaterial.SetColor("_Color1", Color.Lerp(skyboxColorBottom, skyboxColorBottom2, lerpStep));
@@ -125,7 +222,7 @@ public class SkyboxControl : MonoBehaviour
 
             lerpStep = 0;
         }
-        else if (currentColor == CurrentColor.Given)
+        else if (currentColorState == CurrentColorState.Done)
         {
             while (lerpStep < 1.0f)
             {
@@ -142,26 +239,49 @@ public class SkyboxControl : MonoBehaviour
             lerpStep = 0;
         }
 
-
-
-        if (currentColor == CurrentColor.Original)
+        //Set the state to reflect what the current color state is for future changes
+        if (currentColorState == CurrentColorState.Changing)
         {
-            currentColor = CurrentColor.Given;
+            currentColorState = CurrentColorState.Done;
         }
         else
         {
-            currentColor = CurrentColor.Original;
+            currentColorState = CurrentColorState.Idle;
         }
     }
 
-    private void TransitionSkyboxColors()
+    /// <summary>
+    /// Snaps to jew skybox colors to two new random colors generated in the call.
+    /// </summary>
+    private void SnapNewSkyboxColors()
     {
-        skyboxMaterial.SetColor("_Color1", Color.Lerp(skyboxMaterial.GetColor("_Color1"), Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), colorsSwitchTimer));
-        skyboxMaterial.SetColor("_Color2", Color.Lerp(skyboxMaterial.GetColor("_Color2"), Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), colorsSwitchTimer));
+        //The new colors
+        Color newColor1 = UnityEngine.Random.ColorHSV(0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f);
+        Color newColor2 = UnityEngine.Random.ColorHSV(0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f);
 
+        //Set them to the skybox
+        skyboxMaterial.SetColor("_Color1", newColor1);
+        skyboxMaterial.SetColor("_Color2", newColor2);
+
+        //Check if the light needs to be changed as well and do it
         if (changeLightColor)
         {
-            //globalLight.color = topColor;
+            globalLight.color = newColor2;
         }
+        else
+        {
+            //Do something else to your light perhaps
+        }
+    }
+
+    /// <summary>
+    /// Sets the skybox settings.
+    /// </summary>
+    private void SetSkyboxSettings()
+    {
+        skyboxMaterial.SetFloat("_Intensity", skyboxIntensity);
+        skyboxMaterial.SetFloat("_Exponent", skyboxExponent);
+        skyboxMaterial.SetFloat("_Horizon", skyboxHorizonLine);
+        skyboxMaterial.SetFloat("_HorizonSize", skyboxHorizonEdge);
     }
 }

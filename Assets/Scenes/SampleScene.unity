@@ -378,16 +378,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skybox: {fileID: 534669906}
+  skyboxIntensity: 1
+  skyboxExponent: 1
+  skyboxHorizonLine: 1
+  skyboxHorizonEdge: 0.1
   skyboxColorTop: {r: 1, g: 0.9005834, b: 0, a: 1}
   skyboxColorBottom: {r: 1, g: 0, b: 0.8889837, a: 1}
   skyboxColorTop2: {r: 0.22467959, g: 0.7000391, b: 0.9339623, a: 1}
   skyboxColorBottom2: {r: 0.62265235, g: 0.85882354, b: 0.3058823, a: 1}
   randomColors: 0
   colorsSwitchTimer: 3
-  changeLightColor: 1
+  changeLightColor: 0
   globalLight: {fileID: 170076734}
   lerpRandomColors: 0
-  lerpBetweenGivenColors: 1
+  lerpBetweenGivenColors: 0
 --- !u!4 &1135015114
 Transform:
   m_ObjectHideFlags: 0
