@@ -82,6 +82,12 @@ public class SkyboxControl : MonoBehaviour
     public Slider horizontalLineSlider;
     public Slider horizontalEdgeSlider;
 
+    [Header("Show Controls")]
+    public Toggle showColorToggle;
+    public GameObject colorSliders;
+    public GameObject settingsSliders;
+    private bool m_ShowColorOptions = true;
+
 //State tracking for the style of color change that will happen
 private enum ColorChangeStyle
     {
@@ -145,6 +151,12 @@ private enum ColorChangeStyle
         {
             changeLightColor = false;
         }
+
+        //Add a listener for the toggle button change to show the color sliders or not
+        showColorToggle.onValueChanged.AddListener((value) =>
+        {
+            ToggleColorSliders(value);
+        });
     }
 
     /// <summary>
@@ -356,5 +368,17 @@ private enum ColorChangeStyle
         skyboxMaterial.SetFloat(m_DropoffName, dropoffSlider.value);
         skyboxMaterial.SetFloat(m_HorizonLineName, horizontalLineSlider.value);
         skyboxMaterial.SetFloat(m_HorizonEdgeName, horizontalEdgeSlider.value);
+    }
+
+    public void ToggleColorSliders(bool toggle)
+    {
+        if(!toggle)
+        {
+            colorSliders.SetActive(false);
+        }
+        else
+        {
+            colorSliders.SetActive(true);
+        }
     }
 }
