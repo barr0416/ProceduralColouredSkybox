@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Skybox control for the GradientSkybox shader. Allows for control of two colors on the shader.
@@ -10,6 +11,8 @@ public class SkyboxControl : MonoBehaviour
     //Reference for the skybox and material found on the main camera
     private Material skyboxMaterial;
     public Skybox skybox;
+    private string m_SkyboxTopName = "_Color1";
+    private string m_SkyboxBottomName = "_Color2";
 
     //Controls that are found in the script
     [Range(0.0f, 1.0f)]
@@ -52,6 +55,21 @@ public class SkyboxControl : MonoBehaviour
     /// Toggle to lerp between the two given colors (ping-pong)
     /// </summary>
     public bool lerpBetweenGivenColors = false;
+
+    /// <summary>
+    /// Controls for the colours using Unity UI
+    /// </summary>
+    [Header("Top RGB Settings")]
+    public bool useCustomTopValues = false;
+    public Slider topValueR;
+    public Slider topValueG;
+    public Slider topValueB;
+
+    [Header("Bottom RGB Settings")]
+    public bool useCustomBottomValues = false;
+    public Slider bottomValueR;
+    public Slider bottomValueG;
+    public Slider bottomValueB;
 
     //State tracking for the style of color change that will happen
     private enum ColorChangeStyle
@@ -123,31 +141,52 @@ public class SkyboxControl : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        //Count towards the time to switch (in seconds)
-        lastSwitch += Time.deltaTime;
+        if (useCustomTopValues && useCustomBottomValues)
+        {
+            skyboxColorTop = new Color(topValueR.value / 255, topValueG.value / 255, topValueB.value / 255);
+            skyboxMaterial.SetColor(m_SkyboxTopName, skyboxColorTop);
 
-        //Check to see what color change style has been selected and see if the switch timer is filled to start the color switch
-        if(colorChangeStyle == ColorChangeStyle.TransitionToRandom && lastSwitch >= colorsSwitchTimer)
-        {
-            StartCoroutine("TransitionRandomColors");
-            lastSwitch = 0.0f;
+            skyboxColorBottom = new Color(bottomValueR.value / 255, bottomValueG.value / 255, bottomValueB.value / 255);
+            skyboxMaterial.SetColor(m_SkyboxBottomName, skyboxColorBottom);
         }
-        else if (colorChangeStyle == ColorChangeStyle.TransitionToGiven && lastSwitch >= colorsSwitchTimer)
+        else if(useCustomBottomValues)
         {
-            StartCoroutine("TransitionGivenColors");
-            lastSwitch = 0.0f;
+            skyboxColorBottom = new Color(bottomValueR.value / 255, bottomValueG.value / 255, bottomValueB.value / 255);
+            skyboxMaterial.SetColor(m_SkyboxBottomName, skyboxColorBottom);
         }
-        else if (colorChangeStyle == ColorChangeStyle.SnapToRandom && lastSwitch >= colorsSwitchTimer)
+        else if(useCustomTopValues)
         {
-            this.SetSkyboxColors(UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f));
-            lastSwitch = 0.0f;
+            skyboxColorTop = new Color(topValueR.value / 255, topValueG.value / 255, topValueB.value / 255);
+            skyboxMaterial.SetColor(m_SkyboxTopName, skyboxColorTop);
         }
         else
         {
-            //Do nothing or something
-        }
+            //Count towards the time to switch (in seconds)
+            lastSwitch += Time.deltaTime;
 
-        this.SetSkyboxSettings();
+            //Check to see what color change style has been selected and see if the switch timer is filled to start the color switch
+            if (colorChangeStyle == ColorChangeStyle.TransitionToRandom && lastSwitch >= colorsSwitchTimer)
+            {
+                StartCoroutine("TransitionRandomColors");
+                lastSwitch = 0.0f;
+            }
+            else if (colorChangeStyle == ColorChangeStyle.TransitionToGiven && lastSwitch >= colorsSwitchTimer)
+            {
+                StartCoroutine("TransitionGivenColors");
+                lastSwitch = 0.0f;
+            }
+            else if (colorChangeStyle == ColorChangeStyle.SnapToRandom && lastSwitch >= colorsSwitchTimer)
+            {
+                this.SetSkyboxColors(UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f), UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f));
+                lastSwitch = 0.0f;
+            }
+            else
+            {
+                //Do nothing or something
+            }
+
+            this.SetSkyboxSettings();
+        }
     }
 
     /// <summary>

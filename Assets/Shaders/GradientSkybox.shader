@@ -2,8 +2,8 @@
 Shader "Custom/GradientSkybox" {
 	Properties
     {
-        _Color1 ("Color Bottom", Color) = (1, 1, 1, 0)
-        _Color2 ("Color Top", Color) = (1, 1, 1, 0)
+        _Color2 ("Color Bottom", Color) = (1, 1, 1, 0)
+        _Color1 ("Color Top", Color) = (1, 1, 1, 0)
         _Intensity ("Intensity", Range(0, 1)) = 1.0
         _Exponent ("Exponent", Range(0, 1)) = 1.0
 
@@ -53,12 +53,12 @@ Shader "Custom/GradientSkybox" {
 
         if (lerpIndex > _Horizon)
         {
-            return lerp (_Color1, _Color2, lerpIndex) * _Intensity;
+            return lerp (_Color2, _Color1, lerpIndex) * _Intensity;
         }
         else
         {
             lerpIndex -= _HorizonSize;
-            return lerp (_Color1, _Color2, lerpIndex) * _Intensity;
+            return lerp (_Color2, _Color1, lerpIndex) * _Intensity;
         }
     }
 
