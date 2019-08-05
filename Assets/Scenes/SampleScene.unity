@@ -2252,6 +2252,7 @@ MonoBehaviour:
   topValueR: {fileID: 251320867}
   topValueG: {fileID: 428986166}
   topValueB: {fileID: 217242592}
+  updateGlobalLight: 1
   useCustomBottomValues: 1
   bottomValueR: {fileID: 808750731}
   bottomValueG: {fileID: 313826296}

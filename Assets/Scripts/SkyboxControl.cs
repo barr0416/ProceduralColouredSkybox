@@ -64,6 +64,7 @@ public class SkyboxControl : MonoBehaviour
     public Slider topValueR;
     public Slider topValueG;
     public Slider topValueB;
+    public bool updateGlobalLight = false;
 
     [Header("Bottom RGB Settings")]
     public bool useCustomBottomValues = false;
@@ -146,6 +147,11 @@ public class SkyboxControl : MonoBehaviour
             skyboxColorTop = new Color(topValueR.value / 255, topValueG.value / 255, topValueB.value / 255);
             skyboxMaterial.SetColor(m_SkyboxTopName, skyboxColorTop);
 
+            if(updateGlobalLight)
+            {
+                globalLight.color = skyboxColorTop;
+            }
+
             skyboxColorBottom = new Color(bottomValueR.value / 255, bottomValueG.value / 255, bottomValueB.value / 255);
             skyboxMaterial.SetColor(m_SkyboxBottomName, skyboxColorBottom);
         }
@@ -158,6 +164,11 @@ public class SkyboxControl : MonoBehaviour
         {
             skyboxColorTop = new Color(topValueR.value / 255, topValueG.value / 255, topValueB.value / 255);
             skyboxMaterial.SetColor(m_SkyboxTopName, skyboxColorTop);
+
+            if (updateGlobalLight)
+            {
+                globalLight.color = skyboxColorTop;
+            }
         }
         else
         {
