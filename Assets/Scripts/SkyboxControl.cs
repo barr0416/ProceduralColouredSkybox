@@ -13,6 +13,10 @@ public class SkyboxControl : MonoBehaviour
     public Skybox skybox;
     private string m_SkyboxTopName = "_Color1";
     private string m_SkyboxBottomName = "_Color2";
+    private string m_IntensityName = "_Intensity";
+    private string m_DropoffName = "_Exponent";
+    private string m_HorizonLineName = "_Horizon";
+    private string m_HorizonEdgeName = "_HorizonSize";
 
     //Controls that are found in the script
     [Range(0.0f, 1.0f)]
@@ -72,8 +76,14 @@ public class SkyboxControl : MonoBehaviour
     public Slider bottomValueG;
     public Slider bottomValueB;
 
-    //State tracking for the style of color change that will happen
-    private enum ColorChangeStyle
+    [Header("Extra Settings")]
+    public Slider intensitySlider;
+    public Slider dropoffSlider;
+    public Slider horizontalLineSlider;
+    public Slider horizontalEdgeSlider;
+
+//State tracking for the style of color change that will happen
+private enum ColorChangeStyle
     {
         SnapToRandom,
         TransitionToRandom,
@@ -154,6 +164,8 @@ public class SkyboxControl : MonoBehaviour
 
             skyboxColorBottom = new Color(bottomValueR.value / 255, bottomValueG.value / 255, bottomValueB.value / 255);
             skyboxMaterial.SetColor(m_SkyboxBottomName, skyboxColorBottom);
+
+            this.SetSkyboxSliderSettings();
         }
         else if(useCustomBottomValues)
         {
@@ -333,5 +345,16 @@ public class SkyboxControl : MonoBehaviour
         skyboxMaterial.SetFloat("_Exponent", skyboxExponent);
         skyboxMaterial.SetFloat("_Horizon", skyboxHorizonLine);
         skyboxMaterial.SetFloat("_HorizonSize", skyboxHorizonEdge);
+    }
+
+    /// <summary>
+    /// Sets the skybox settings to the values provided using the sliders in scene.
+    /// </summary>
+    private void SetSkyboxSliderSettings()
+    {
+        skyboxMaterial.SetFloat(m_IntensityName, intensitySlider.value);
+        skyboxMaterial.SetFloat(m_DropoffName, dropoffSlider.value);
+        skyboxMaterial.SetFloat(m_HorizonLineName, horizontalLineSlider.value);
+        skyboxMaterial.SetFloat(m_HorizonEdgeName, horizontalEdgeSlider.value);
     }
 }

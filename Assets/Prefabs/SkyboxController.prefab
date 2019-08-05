@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1139100721574706}
+  m_IsPrefabAsset: 1
+--- !u!1 &1139100721574706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4307441024868526}
+  - component: {fileID: 114552504771713320}
+  m_Layer: 0
+  m_Name: SkyboxController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4307441024868526
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1139100721574706}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.502248, y: 8.547048, z: 6.816695}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114552504771713320
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1139100721574706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9a0b8fd5c9624b3ca7140e95295685d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skybox: {fileID: 0}
+  skyboxIntensity: 1
+  skyboxExponent: 1
+  skyboxHorizonLine: 1
+  skyboxHorizonEdge: 0.1
+  skyboxColorTop: {r: 1, g: 0.9005834, b: 0.2509804, a: 1}
+  skyboxColorBottom: {r: 1, g: 0, b: 0.8889837, a: 1}
+  skyboxColorTop2: {r: 0.22467959, g: 0.7000391, b: 0.9339623, a: 1}
+  skyboxColorBottom2: {r: 0.62265235, g: 0.85882354, b: 0.3058823, a: 1}
+  randomColors: 0
+  colorsSwitchTimer: 3
+  changeLightColor: 0
+  globalLight: {fileID: 0}
+  lerpRandomColors: 0
+  lerpBetweenGivenColors: 0
+  useCustomTopValues: 1
+  topValueR: {fileID: 0}
+  topValueG: {fileID: 0}
+  topValueB: {fileID: 0}
+  updateGlobalLight: 1
+  useCustomBottomValues: 1
+  bottomValueR: {fileID: 0}
+  bottomValueG: {fileID: 0}
+  bottomValueB: {fileID: 0}
+  intensitySlider: {fileID: 0}
+  dropoffSlider: {fileID: 0}
+  horizontalLineSlider: {fileID: 0}
+  horizontalEdgeSlider: {fileID: 0}
